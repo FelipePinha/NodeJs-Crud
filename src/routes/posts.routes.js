@@ -6,13 +6,13 @@ const { posts } = require("../models");
 router.post("/posts-create", async (req, res) => {
     const { title, content } = req.body;
     await posts.create({ title, content });
-    res.status(201).send("criado com sucesso");
+    res.status(201).json({ message: "criado com sucesso" });
 });
 
 // Read
 router.get("/posts", async (req, res) => {
     const allPosts = await posts.findAll();
-    res.status(200).send(allPosts);
+    res.status(200).json(allPosts);
 });
 
 // Update
@@ -22,7 +22,7 @@ router.put("/posts-update/:id", async (req, res) => {
 
     const post = await posts.findOne({ where: { id } });
     if (!post) {
-        res.status(401).send({ message: "post não foi encontrado..." });
+        res.status(401).json({ message: "post não foi encontrado..." });
     } else {
         await posts.update(
             {
@@ -36,7 +36,7 @@ router.put("/posts-update/:id", async (req, res) => {
             }
         );
 
-        res.status(200).send({ message: "post alterado!" });
+        res.status(200).json({ message: "post alterado!" });
     }
 });
 
@@ -45,14 +45,14 @@ router.delete("/posts-delete/:id", async (req, res) => {
     const { id } = req.params;
     const post = await posts.findOne({ where: { id } });
     if (!post) {
-        res.status(401).send({ message: "post não foi encontrado..." });
+        res.status(401).json({ message: "post não foi encontrado..." });
     } else {
         await posts.destroy({
             where: {
                 id,
             },
         });
-        res.status(200).send({ message: "deletado com sucesso" });
+        res.status(200).json({ message: "deletado com sucesso" });
     }
 });
 
