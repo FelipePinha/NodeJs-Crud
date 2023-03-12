@@ -1,17 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const { posts } = require("../models");
+const PostService = require("../services/posts.services");
+
+const postService = new PostService(posts);
 
 // Create
 router.post("/posts-create", async (req, res) => {
     const { title, content } = req.body;
-    await posts.create({ title, content });
+    await postService.create({ title, content });
     res.status(201).json({ message: "criado com sucesso" });
 });
 
 // Read
 router.get("/posts", async (req, res) => {
-    const allPosts = await posts.findAll();
+    const allPosts = await postService.get();
     res.status(200).json(allPosts);
 });
 
@@ -19,41 +22,15 @@ router.get("/posts", async (req, res) => {
 router.put("/posts-update/:id", async (req, res) => {
     const { title, content } = req.body;
     const { id } = req.params;
-
-    const post = await posts.findOne({ where: { id } });
-    if (!post) {
-        res.status(401).json({ message: "post não foi encontrado..." });
-    } else {
-        await posts.update(
-            {
-                title,
-                content,
-            },
-            {
-                where: {
-                    id,
-                },
-            }
-        );
-
-        res.status(200).json({ message: "post alterado!" });
-    }
+    const updateStatus = await postService.update({ title, content }, id);
+    res.status(updateStatus.status).json({ message: updateStatus.message });
 });
 
 // Delete
 router.delete("/posts-delete/:id", async (req, res) => {
     const { id } = req.params;
-    const post = await posts.findOne({ where: { id } });
-    if (!post) {
-        res.status(401).json({ message: "post não foi encontrado..." });
-    } else {
-        await posts.destroy({
-            where: {
-                id,
-            },
-        });
-        res.status(200).json({ message: "deletado com sucesso" });
-    }
+    const deleteStatus = await postService.delete(id);
+    res.status(deleteStatus.status).json({ message: deleteStatus.message });
 });
 
 module.exports = router;
